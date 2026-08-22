@@ -70,3 +70,5 @@ Testing/
 
 # obsidian
 .obsidian/
+.obsidian-cloud-only
+.agents/
