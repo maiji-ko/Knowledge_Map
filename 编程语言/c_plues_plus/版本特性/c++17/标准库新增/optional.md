@@ -137,7 +137,6 @@ int main() {
     if (name) std::cout << "Name: " << *name << std::endl; // Alice
 
   
-
     name.reset(); // 置空
 
     std::cout << "Empty: " << (name ? "有值" : "空") << std::endl; // 空
