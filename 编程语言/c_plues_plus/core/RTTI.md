@@ -113,3 +113,73 @@ void log_object(const T& obj) {
 	// 在gcc/clang中，name()返回修饰名，可用 abi::__cxa_demangle 解码为可读名称
 }
 ```
+### 四、完成实例代码
+``` c++
+#include <iostream>
+#include <typeinfo>
+#include <memory>
+
+class Shape {
+public:
+    virtual ~Shape() = default;
+    virtual void draw() const = 0;
+};
+
+class Circle : public Shape {
+public:
+    void draw() const override { std:: cout << "Drawing Circle" << std::endl; }
+    void radius() const { std::cout << "Radius: 5" << std::endl; }
+};
+
+class Square : public Shape {
+public:
+    void draw() const override { std:: cout << "Drawing Square" << std::endl; }
+    void side() const { std::cout << "Side: 10" << std::endl; }
+};
+
+void process(Shape* shape) {
+    // 1. 使用 typeid 检查类型
+    if (typeid(*shape) == typeid(Circle)) {
+        std::cout << "This is a Circle" << std::endl;
+    }
+
+    // 2. 使用 dynamic_cast 尝试转换
+    if (Circle* circle = dynamic_cast<Circle*>(shape)) {
+        circle->draw(); // 只有 Circle 才有 radius() 方法
+    } else if (Square* s = dynamic_cast<Square*>(shape)) {
+        s->side();// 只有 Squard 才有 side() 方法
+    }
+
+    shape->draw(); // 多态调用
+}
+
+int main() {
+    std::unique_ptr<Shape> c = std::make_unique<Circle>();
+    std::unique_ptr<Shape> s = std::make_unique<Square>();
+
+    process(c.get());
+    process(s.get());
+}
+
+```
+### 五、性能与开销
+- **内存开销**：启用 RTTI 后，每个多态的虚表会额外存储指向 `std::type_info` 的指针(通常增加几个字节)
+- **时间开销**：`typeid` 几乎无额外开销(类似取 vtable 指针); `dynamic_cast` 设计字符串比较或指针偏移计算，开销比普通 `static_cast` 大得多(尤其在复杂的继承中)
+- **禁用RTTI**：编译选项 `-fno-rtti` (GCC/Clang) 或 `/GR-`(MSVC)可完全关闭RTTI，但会导致 `dynamic_cast` 和 `typeid` 对多态类型不可用(`typeid` 退化为静态类型)
+### 六、批判性思考与最佳实践
+⚠️**常见问题与设计开销**
+- **违反开闭原则**：每当新增派生类，所有使用 `dynamic_cast` 的地方都要修改
+- **破坏封装**：业务代码需要知道所有派生类的具体类型，增加了耦合
+- **性能陷阱**：在性能敏感的热路径中滥用 `dyname_cast` 可能导致性能下降
+✔️**更优替代方案**
+1. **虚函数**：绝大多数情况下，直接使用虚函数就能解决问题，无需知道具体类型
+2. `std::variant` + `std::visit` (C++ 17)：用于有限集合的静态多态，在编译期确定访问逻辑，性能更改且类型安全
+3. **双重派发(访问者模式)**：解决复杂交互问题，避免大量 `dynamic_cast`
+4. **自定义类型枚举**：在基类中定义一个 `enum Type { ... }`成员，手动标记类型(常用于游戏引擎，比RTTI更快)
+📌**何时可以用RTTI**
+- **序列化**/**反序列化框架**：需要根据类型动态创建对象
+- **调试工具与日志系统**：打印对象类型辅助排查
+- **GUI框架事件处理**：需要区分不同控件的具体行为(但也要谨慎)
+---
+### 总结
+RTTI 是 C++ 提供的一项"安全网"技术，在必要时可能解燃眉之急，但不应成为日常设计的依赖。**好的面向对象设计应尽量让系函数承担职责**，将RTTI限制在架构底层(如 工厂、反射机制) 或辅助调试中。如果发现自己频繁书写 `dynnamic_cast`, 往往是设计需要重构的信号。
