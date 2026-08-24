@@ -75,73 +75,47 @@ std::optional<int> parse_int(const std::string& s) {
 ### 五、完成示例代码
 ``` c++
 #include <iostream>
-
 #include <optional>
-
 #include <vector>
-
 #include <string>
 
-  
-
 // 查找第一个大于阈值的值
+std::optional<int> first_greater(const std::vector<int> &nums, int threshold)
+{
 
-std::optional<int> first_greater(const std::vector<int>& nums, int threshold) {
+    for (int n : nums) {
+        if (n > threshold)
+            return n;
+    }
 
-    for (int n : nums) {
-
-        if (n > threshold) return n;
-
-    }
-
-    return std::nullopt;
-
+    return std::nullopt;
 }
 
-  
+int main()
+{
 
-int main() {
+    std::vector<int> data = {3, 1, 4, 1, 5, 9};
 
-    std::vector<int> data = {3, 1, 4, 1, 5, 9};
+    auto result = first_greater(data, 5);
 
-  
+    if (result) {
+        std::cout << "Found: " << *result << std::endl; // 9
+    } else {
+        std::cout << "No value" << std::endl;
+    }
 
-    auto result = first_greater(data, 5);
+    // 使用 value_or
+    auto result2 = first_greater(data, 10);
+    std::cout << "Result: " << result2.value_or(-1) << std::endl; // -1
 
-    if (result) {
+    // 修改 optional
+    std::optional<std::string> name;
+    name = "Alice";
+    if (name)
+        std::cout << "Name: " << *name << std::endl; // Alice
+    name.reset(); // 置空
+    std::cout << "Empty: " << (name ? "有值" : "空") << std::endl; // 空
 
-        std::cout << "Found: " << *result << std::endl; // 9
-
-    } else {
-
-        std::cout << "No value" << std::endl;
-
-    }
-
-  
-
-    // 使用 value_or
-
-    auto result2 = first_greater(data, 10);
-
-    std::cout << "Result: " << result2.value_or(-1) << std::endl; // -1
-
-  
-
-    // 修改 optional
-
-    std::optional<std::string> name;
-
-    name = "Alice";
-
-    if (name) std::cout << "Name: " << *name << std::endl; // Alice
-
-  
-    name.reset(); // 置空
-
-    std::cout << "Empty: " << (name ? "有值" : "空") << std::endl; // 空
-
-    return 0;
-
+    return 0;
 }
 ```
