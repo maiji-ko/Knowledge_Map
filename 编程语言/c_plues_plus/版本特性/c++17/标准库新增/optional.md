@@ -68,8 +68,11 @@ bool parse_int(const std::string& s, int& out);
 
 // 新风格：直接返回 optional
 std::optional<int> parse_int(const std::string& s) {
-	try { return std::stoi(s); }
-	catch (...) { return std::nullopt; }
+	try { 
+		return std::stoi(s); 
+	} catch (...) { 
+		return std::nullopt;
+	}
 }
 ```
 ### 五、完成示例代码
