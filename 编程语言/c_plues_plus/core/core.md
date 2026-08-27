@@ -1,3 +1,5 @@
 记录c++的核心机制
 - [[RAII | 资源获取及初始化(RAII)]]
 - [[RTTI | 运行时类型识别(RTTI)]]
+- [[Templates | 模板(Template)]]
+- 
