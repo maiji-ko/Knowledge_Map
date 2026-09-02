@@ -75,7 +75,7 @@ std::optional<int> parse_int(const std::string& s) {
 	}
 }
 ```
-### 五、完成示例代码
+### 五、完整示例代码
 ``` c++
 #include <iostream>
 #include <optional>
