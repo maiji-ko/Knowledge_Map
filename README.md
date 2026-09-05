@@ -1,6 +1,6 @@
 # Knowledge_Map
 Map
 
-- 编程语言包含以下内容
-	- [[c plus plus | c++]]
+### 一、编程语言
+- [[c plus plus | c++]]
 
