@@ -122,3 +122,66 @@ vec.push_back(std::make_unique<MyClass>(10));
 | [[auto 和 decltype \| auto/decltype]]                        | 通常用 `auto ptr = make_unique<T>()` 简化书写，推导类型             |
 | [[函数模板的参数推导规则 \| 函数模板推导]]                                   | 传参时若形参是 `T&&`，可配合`std::forward` 完美转发 `unique_ptr`       |
 | [[variant \| std::variant]] / [[optional \| std::optional]] | 在实际开发中，`variant` 内部常使用 `unique_ptr` 包裹大对象以减少拷贝代价        |
+
+---
+### 八、常见陷阱与最佳实践
+
+| 陷阱                                   | 说明与解决                                                                                             |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| **使用** `release()` **后忘记** `delete`  | `release()` 只放弃管理不释放，除非你立即给另一个 `unique_ptr` 管理，否则裸指针需 `delete`，极易泄露。<br>**建议**：非必要不使用 `release()` |
+| **用** `get()` **返回的指针删除对象**          | `get()` 只是观察，严禁 `delete ptr.get()`，否则触发 double free (析构时再删除一次)                                    |
+| **循环引用** (**与** `shared_ptr` **对比**) | `unique_ptr` 不存在循环引用问题 (独占所有权，不被共享)，这是它与 `shared_ptr` 相比的一大优势                                     |
+| **数组特化误用**                           | 不要用 `unique_ptr<T>` 管理数组 (如 `new T[10]`)，应使用 `unique_ptr<T[]>`，或者最好直接用 `vector`                   |
+| **自定义删除器与类型兼容性**                     | 带有不同删除器的 `unique_ptr` 是不同的类型，不能互相赋值 (除非删除器类型相同)                                                   |
+| **在C接口中传递所有权**                       | 如果 C API 需要 `free`，请使用自定义删除器 `[](void* p){ free(p); }` 搭配 `malloc` 分配                             |
+
+---
+### 九、终极示例：工厂模式与多态
+``` c++
+#include <iostream>
+#include <memory>
+
+class Animal {
+public:
+    virtual void speak() = 0;
+    virtual ~Animal() = default;
+};
+
+class Dog : public Animal {
+public:
+    void speak() override {
+        std::cout << "Woof" << std::endl;
+    }
+};
+
+class Cat : public Animal {
+public:
+    void speak() override {
+        std::cout << "Meow" << std::endl;
+    }
+};
+
+std::unique_ptr<Animal> createAnimal(const std::string& type) {
+    if (type == "dog") {
+        return std::make_unique<Dog>();
+    }
+    if (type == "cat") {
+        return std::make_unique<Cat>();
+    }
+
+    return nullptr;
+}
+
+int main() {
+    auto pet = createAnimal("dog");
+    pet->speak(); // Woof!
+    // pet 离开作用域，自动销毁 Dog 对象
+
+    return 0;
+}
+
+```
+
+---
+### 总结
+`std::unique_ptr` 是现代 C++ 内存管理的首选默认工具。它让你从繁琐的 `new` / `delete` 中解放出来，用 **零代价的抽象** 实现了内存安全。牢记它的 **排他性** (不能复制，只能移动)，你将自然而然地写出清晰、健壮且高效的程序。**凡是需要动态分配内存且所有权独占的场景**，**请第一时间考虑**`std::unique_ptr`，**而非裸指针**
