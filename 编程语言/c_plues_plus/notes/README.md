@@ -13,7 +13,7 @@
 
 | Day | 主题 | 知识点 | 笔记 |
 |---|---|---|---|
-| Day 01 | 工具链、编译链接与程序结构 | K01、K02 | [[编程语言/c_plues_plus/notes/Day01/笔记\|进入]] |
+| Day 01 | 工具链、编译链接与程序结构 | K01、K02 | [[编程语言/c_plues_plus/notes/Day01/笔记.md\|进入]] |
 | Day 02 | 类型、运算符与类型转换 | K03 | [[编程语言/c_plues_plus/notes/Day02/笔记\|进入]] |
 | Day 03 | 控制流与边界处理 | K04 | [[编程语言/c_plues_plus/notes/Day03/笔记\|进入]] |
 | Day 04 | 函数、参数传递与作用域 | K05 | [[编程语言/c_plues_plus/notes/Day04/笔记\|进入]] |
