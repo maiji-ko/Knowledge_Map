@@ -3,6 +3,7 @@ Map
 
 ### 一、编程语言
 - [[c plus plus | c++]]
-
+### 二、CV
+- [[opencv | opencv]]
 ### 其它
 - [[其它| 其他]]
